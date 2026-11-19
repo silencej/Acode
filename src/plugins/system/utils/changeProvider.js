@@ -17,8 +17,11 @@ module.exports = {
       const manifest = fs.readFileSync(androidManifest, "utf8");
       const ID = reset ? "com.foxdebug" : /widget id="([0-9a-zA-Z\.\-_]*)"/.exec(fileData)[1];
       const newFileData = manifest.replace(
-        /(android:authorities=")([0-9a-zA-Z\.\-_]*)(")/,
-        `$1${reset ? "com.foxdebug" : ID}.provider$3`
+        /<provider\b(?=[^>]*android:name="androidx\.core\.content\.FileProvider")(?=[^>]*android:authorities="(?:com\.foxdebug(?:\.acode(?:free)?)?|io\.github\.silencej\.acode)\.provider")[^>]*>/g,
+        (provider) => provider.replace(
+          /android:authorities="[^"]*"/,
+          `android:authorities="${ID}.provider"`
+        )
       );
       fs.writeFileSync(androidManifest, newFileData);
 
